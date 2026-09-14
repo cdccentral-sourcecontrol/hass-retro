@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "console": "genesis",
+    "console_name": "Sega Genesis / Mega Drive",
+    "adapter_type": "blueretro"
+  },
+  "profiles": {
+    "default": {
+      "description": "Standard PS5 to Genesis/Mega Drive 6-button mapping",
+      "mappings": [
+        {"src": 0,  "dst": 0,  "perc_max": 100, "perc_deadzone": 15, "algo": 0},
+        {"src": 1,  "dst": 1,  "perc_max": 100, "perc_deadzone": 15, "algo": 0},
+        {"src": 2,  "dst": 2,  "perc_max": 100, "perc_deadzone": 15, "algo": 0},
+        {"src": 3,  "dst": 3,  "perc_max": 100, "perc_deadzone": 15, "algo": 0},
+        {"src": 8,  "dst": 8},
+        {"src": 9,  "dst": 9},
+        {"src": 10, "dst": 10},
+        {"src": 11, "dst": 11},
+        {"src": 18, "dst": 18},
+        {"src": 17, "dst": 17},
+        {"src": 16, "dst": 16},
+        {"src": 19, "dst": 19},
+        {"src": 20, "dst": 20},
+        {"src": 25, "dst": 24},
+        {"src": 29, "dst": 28}
+      ]
+    }
+  }
+}

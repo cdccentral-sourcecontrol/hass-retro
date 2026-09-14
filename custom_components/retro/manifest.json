@@ -1,0 +1,18 @@
+{
+  "domain": "retro",
+  "name": "Retro Gaming",
+  "version": "0.1.0",
+  "documentation": "https://github.com/cdccentral-sourcecontrol/hass-retro",
+  "issue_tracker": "https://github.com/cdccentral-sourcecontrol/hass-retro/issues",
+  "codeowners": ["@cdccentral-sourcecontrol"],
+  "config_flow": true,
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "bluetooth": [
+    {
+      "service_uuid": "56830f56-5180-fab0-314b-2fa176799a00"
+    }
+  ],
+  "dependencies": ["bluetooth"],
+  "requirements": []
+}

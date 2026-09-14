@@ -1,0 +1,65 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Retro Gaming Adapter",
+        "description": "Select the type of retro adapter to configure.",
+        "data": {
+          "adapter_type": "Adapter type"
+        }
+      },
+      "bluetooth_scan": {
+        "title": "Select BlueRetro Device",
+        "description": "Choose a discovered BlueRetro device or enter an address manually.",
+        "data": {
+          "device_address": "Device"
+        }
+      },
+      "manual_address": {
+        "title": "Enter BLE Address",
+        "description": "Enter the Bluetooth address of the adapter (e.g. AA:BB:CC:DD:EE:FF).",
+        "data": {
+          "device_address": "BLE address"
+        }
+      },
+      "configure": {
+        "title": "Configure Adapter",
+        "description": "Set the console type and give this adapter a friendly name.",
+        "data": {
+          "device_name": "Name",
+          "console_type": "Console type"
+        }
+      }
+    },
+    "error": {
+      "no_device_selected": "Please select a device.",
+      "invalid_address": "Invalid Bluetooth address format."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  },
+  "entity": {
+    "select": {
+      "profile": {
+        "name": "Profile"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status"
+      },
+      "firmware": {
+        "name": "Firmware"
+      }
+    },
+    "button": {
+      "backup": {
+        "name": "Backup Config"
+      },
+      "refresh": {
+        "name": "Refresh"
+      }
+    }
+  }
+}
