@@ -95,7 +95,85 @@ CONF_DEVICE_ADDRESS = "device_address"
 CONF_DEVICE_NAME = "device_name"
 
 # ---------------------------------------------------------------------------
+# Options (configurable per-device in Settings → Devices → Configure)
+# ---------------------------------------------------------------------------
+
+OPT_POLL_INTERVAL = "poll_interval"
+OPT_KEEP_ALIVE = "keep_alive"
+OPT_AUTO_BACKUP = "auto_backup_on_profile_change"
+OPT_INQUIRY_MODE = "inquiry_mode"
+
+# Defaults
+DEFAULT_POLL_INTERVAL = 5  # minutes
+DEFAULT_KEEP_ALIVE = True
+DEFAULT_AUTO_BACKUP = True
+DEFAULT_INQUIRY_MODE = "auto"  # "auto" or "manual"
+
+# ---------------------------------------------------------------------------
 # Entity platforms to set up per config entry
 # ---------------------------------------------------------------------------
 
 PLATFORMS: list[str] = ["select", "sensor", "button"]
+
+# ---------------------------------------------------------------------------
+# Button name lookup tables for human-readable mapping display.
+# Keys are BlueRetro generic button IDs (0-based).
+# Source = PS5 DualSense controller, Destination = per-console.
+# ---------------------------------------------------------------------------
+
+# Generic source names (PS5 DualSense / modern gamepad)
+SRC_BUTTON_NAMES: dict[int, str] = {
+    0: "Left Stick X",
+    1: "Left Stick Y",
+    2: "Right Stick X",
+    3: "Right Stick Y",
+    4: "L Stick X→Btn",
+    5: "L Stick Y→Btn",
+    6: "R Stick X→Btn",
+    7: "R Stick Y→Btn",
+    8: "D-pad Left",
+    9: "D-pad Right",
+    10: "D-pad Down",
+    11: "D-pad Up",
+    12: "L3 Left",
+    13: "L3 Right",
+    14: "L3 Down",
+    15: "L3 Up",
+    16: "Square",
+    17: "Circle",
+    18: "Cross",
+    19: "Triangle",
+    20: "Start",
+    21: "Select",
+    24: "L2",
+    25: "L1",
+    28: "R2",
+    29: "R1",
+}
+
+# Per-console destination names
+DST_BUTTON_NAMES: dict[str, dict[int, str]] = {
+    "n64": {
+        0: "Stick X",
+        1: "Stick Y",
+        2: "Stick X (alt)",
+        3: "Stick Y (alt)",
+        8: "D-pad Left",
+        9: "D-pad Right",
+        10: "D-pad Down",
+        11: "D-pad Up",
+        12: "C-Left",
+        13: "C-Right",
+        14: "C-Down",
+        15: "C-Up",
+        16: "B",
+        17: "—",
+        18: "A",
+        19: "—",
+        20: "Start",
+        24: "Z",
+        25: "L",
+        29: "R",
+    },
+    # Future consoles can be added here
+}

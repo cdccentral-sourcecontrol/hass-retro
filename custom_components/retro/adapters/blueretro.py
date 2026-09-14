@@ -190,6 +190,7 @@ class BlueRetroAdapter(BaseAdapter):
         """Write a mapping profile to the adapter.
 
         Appends system combo mappings automatically.
+        BlueRetro reboots after saving — disconnect during write is expected.
         """
         if not self.is_connected:
             raise BleakError("Not connected")
@@ -206,20 +207,24 @@ class BlueRetroAdapter(BaseAdapter):
             len(in_cfg_data),
             device_id,
         )
-        await self._client.write_gatt_char(
-            BR_IN_CFG_DATA_UUID, in_cfg_data, response=True
-        )
 
-        # Verify
-        readback = await self.async_read_mapping(device_id)
-        if readback["map_size"] != len(full_mappings):
-            LOGGER.warning(
-                "Write verification mismatch: wrote %d, read %d",
-                len(full_mappings),
-                readback["map_size"],
+        # BlueRetro reboots immediately after saving config.
+        # The device disconnects before sending a GATT write-response,
+        # causing a BleakError. This is expected behaviour.
+        try:
+            await self._client.write_gatt_char(
+                BR_IN_CFG_DATA_UUID, in_cfg_data, response=True
             )
-        else:
-            LOGGER.info("Verified: %d mappings active", readback["map_size"])
+            LOGGER.info("Write completed without disconnect")
+        except BleakError as err:
+            err_str = str(err).lower()
+            if "changed connection status" in err_str or "disconnected" in err_str:
+                LOGGER.info(
+                    "Device rebooted after config write (expected): %s", err
+                )
+                self._client = None
+            else:
+                raise
 
     async def async_backup(self) -> dict[str, Any]:
         """Read full config for backup."""
@@ -269,35 +274,40 @@ class BlueRetroAdapter(BaseAdapter):
 
         # Restore global config
         if "global_cfg" in backup:
-            gc = backup["global_cfg"]
-            data = struct.pack(
+            g = backup["global_cfg"]
+            global_data = struct.pack(
                 "BBBB",
-                gc.get("system_cfg", 0),
-                gc.get("multitap_cfg", 0),
-                gc.get("inquiry_mode", 0),
-                gc.get("banksel", 0),
+                g["system_cfg"],
+                g["multitap_cfg"],
+                g["inquiry_mode"],
+                g["banksel"],
             )
             await self._client.write_gatt_char(
-                BR_GLOBAL_CFG_UUID, data, response=True
+                BR_GLOBAL_CFG_UUID, global_data, response=True
             )
 
         # Restore output config
         if "out_cfg" in backup:
-            oc = backup["out_cfg"]
             ctrl_data = struct.pack("<H", 0)
             await self._client.write_gatt_char(BR_OUT_CFG_CTRL_UUID, ctrl_data)
-            out_data = struct.pack(
-                "BB", oc.get("dev_mode", 0), oc.get("acc_mode", 0)
-            )
+            o = backup["out_cfg"]
+            out_data = struct.pack("BB", o["dev_mode"], o["acc_mode"])
             await self._client.write_gatt_char(
                 BR_OUT_CFG_DATA_UUID, out_data, response=True
             )
 
-        # Restore input mappings
+        # Restore input mappings (without re-appending combos — backup has them)
         if "in_cfg" in backup:
             ic = backup["in_cfg"]
-            await self.async_write_mapping(
-                ic.get("mappings", []), device_id=ic.get("bt_dev_id", 0)
+            ctrl_data = struct.pack("<HH", 0, 0)
+            await self._client.write_gatt_char(BR_IN_CFG_CTRL_UUID, ctrl_data)
+            in_cfg_data = _pack_in_cfg(
+                ic.get("bt_dev_id", 0),
+                ic.get("bt_subdev_id", 0),
+                ic["mappings"],
+            )
+            await self._client.write_gatt_char(
+                BR_IN_CFG_DATA_UUID, in_cfg_data, response=True
             )
 
-        LOGGER.info("Restored config from backup for %s", self._address)
+        LOGGER.info("Config restored from backup")

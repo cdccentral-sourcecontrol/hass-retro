@@ -35,6 +35,7 @@ class SetRetroProfileIntent(intent.IntentHandler):
         profile = slots["profile"]["value"]
         console = slots["console"]["value"]
 
+        # Find the matching coordinator
         coordinator = await _resolve_coordinator(hass, console)
 
         if coordinator is None:
@@ -49,6 +50,7 @@ class SetRetroProfileIntent(intent.IntentHandler):
                 )
             return response
 
+        # Validate profile exists
         if profile not in coordinator.profile_names:
             available = ", ".join(coordinator.profile_names)
             response = intent_obj.create_response()
@@ -58,6 +60,7 @@ class SetRetroProfileIntent(intent.IntentHandler):
             )
             return response
 
+        # Apply the profile
         try:
             await coordinator.async_apply_profile(profile)
         except Exception as err:
@@ -69,6 +72,7 @@ class SetRetroProfileIntent(intent.IntentHandler):
             )
             return response
 
+        # Success
         response = intent_obj.create_response()
         if console == "default":
             response.async_set_speech(
@@ -95,11 +99,13 @@ async def _resolve_coordinator(
         return None
 
     if console == "default":
+        # Return the first loaded entry's coordinator
         for entry in entries:
             if hasattr(entry, "runtime_data") and entry.runtime_data:
                 return entry.runtime_data
         return None
 
+    # Match by console type
     for entry in entries:
         if (
             entry.data.get(CONF_CONSOLE_TYPE) == console

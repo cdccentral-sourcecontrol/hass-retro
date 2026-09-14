@@ -17,7 +17,7 @@
       },
       "manual_address": {
         "title": "Enter BLE Address",
-        "description": "Enter the Bluetooth address of the adapter (e.g. AA:BB:CC:DD:EE:FF).",
+        "description": "Enter the Bluetooth address of the adapter (e.g. F4:65:0B:AA:56:AA).",
         "data": {
           "device_address": "BLE address"
         }
@@ -39,10 +39,27 @@
       "already_configured": "This device is already configured."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Adapter Settings",
+        "description": "Configure polling, connection behavior, and hardware options.",
+        "data": {
+          "poll_interval": "Poll interval",
+          "keep_alive": "Keep-alive (retry on disconnect)",
+          "auto_backup_on_profile_change": "Auto-backup before profile changes",
+          "inquiry_mode": "Pairing mode"
+        }
+      }
+    }
+  },
   "entity": {
     "select": {
       "profile": {
         "name": "Profile"
+      },
+      "backup_select": {
+        "name": "Restore Point"
       }
     },
     "sensor": {
@@ -56,6 +73,18 @@
     "button": {
       "backup": {
         "name": "Backup Config"
+      },
+      "restore": {
+        "name": "Restore Config"
+      },
+      "save_profile": {
+        "name": "Save Profile"
+      },
+      "delete_backup": {
+        "name": "Delete Backup"
+      },
+      "factory_reset": {
+        "name": "Factory Reset"
       },
       "refresh": {
         "name": "Refresh"

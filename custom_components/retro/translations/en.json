@@ -17,7 +17,7 @@
       },
       "manual_address": {
         "title": "Enter BLE Address",
-        "description": "Enter the Bluetooth address of the adapter (e.g. AA:BB:CC:DD:EE:FF).",
+        "description": "Enter the Bluetooth address of the adapter (e.g. F4:65:0B:AA:56:AA).",
         "data": {
           "device_address": "BLE address"
         }

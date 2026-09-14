@@ -1,0 +1,75 @@
+save_profile:
+  name: Save Profile
+  description: Save the current adapter mapping as a named custom profile.
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      description: The config entry ID of the retro adapter device.
+      required: true
+      selector:
+        config_entry:
+          integration: retro
+    name:
+      name: Profile Name
+      description: Name for the saved profile (without 'custom_' prefix).
+      required: true
+      example: "my_goldeneye"
+      selector:
+        text:
+    description:
+      name: Description
+      description: Optional description of the profile.
+      default: ""
+      selector:
+        text:
+    src_controller:
+      name: Source Controller
+      description: Type of source controller used with this profile (cosmetic label only).
+      default: "ps5"
+      selector:
+        select:
+          options:
+            - label: "PS5 DualSense"
+              value: "ps5"
+            - label: "Xbox Controller"
+              value: "xbox"
+            - label: "Switch Pro"
+              value: "switch_pro"
+
+delete_profile:
+  name: Delete Profile
+  description: Delete a custom profile by name.
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      description: The config entry ID of the retro adapter device.
+      required: true
+      selector:
+        config_entry:
+          integration: retro
+    name:
+      name: Profile Name
+      description: Storage name of the profile to delete (e.g. 'custom_goldeneye').
+      required: true
+      example: "custom_goldeneye"
+      selector:
+        text:
+
+set_mapping:
+  name: Set Mapping
+  description: Write a full button mapping configuration to the adapter. Combo mappings are appended automatically.
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      description: The config entry ID of the retro adapter device.
+      required: true
+      selector:
+        config_entry:
+          integration: retro
+    mappings:
+      name: Mappings
+      description: List of mapping entries. Each entry has src_btn, dst_btn, and optional perc_deadzone, perc_max, perc_threshold, algo, turbo, dst_id.
+      required: true
+      example: "[{\"src_btn\": 0, \"dst_btn\": 0, \"perc_max\": 100, \"perc_deadzone\": 15}]"
+      selector:
+        object:

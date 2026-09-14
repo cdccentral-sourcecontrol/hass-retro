@@ -4,6 +4,12 @@ Multi-step flow:
 1. Select adapter type (blueretro, future: 8bitdo, raphnet)
 2. BLE scan or manual address entry
 3. Select console type and enter friendly name
+
+Options flow:
+- Poll interval (minutes)
+- Keep-alive (aggressive reconnect)
+- Auto-backup on profile change
+- Inquiry mode (auto/manual pairing)
 """
 
 from __future__ import annotations
@@ -15,7 +21,8 @@ from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
 )
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
+from homeassistant.core import callback
 
 from .const import (
     BR_SERVICE_UUID,
@@ -24,8 +31,16 @@ from .const import (
     CONF_DEVICE_ADDRESS,
     CONF_DEVICE_NAME,
     CONSOLE_FRIENDLY_NAMES,
+    DEFAULT_AUTO_BACKUP,
+    DEFAULT_INQUIRY_MODE,
+    DEFAULT_KEEP_ALIVE,
+    DEFAULT_POLL_INTERVAL,
     DOMAIN,
     LOGGER,
+    OPT_AUTO_BACKUP,
+    OPT_INQUIRY_MODE,
+    OPT_KEEP_ALIVE,
+    OPT_POLL_INTERVAL,
     AdapterType,
     ConsoleType,
 )
@@ -41,6 +56,12 @@ class RetroConfigFlow(ConfigFlow, domain=DOMAIN):
         self._adapter_type: str | None = None
         self._address: str | None = None
         self._discovered_devices: dict[str, str] = {}  # address -> name
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Return the options flow handler."""
+        return RetroOptionsFlow(config_entry)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -185,6 +206,47 @@ class RetroConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_CONSOLE_TYPE, default=ConsoleType.N64): vol.In(
                         console_options
                     ),
+                }
+            ),
+        )
+
+
+class RetroOptionsFlow(OptionsFlow):
+    """Options flow for configuring a retro gaming adapter."""
+
+    def __init__(self, config_entry) -> None:
+        """Initialize options flow."""
+        self._config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Manage adapter options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        options = self._config_entry.options
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        OPT_POLL_INTERVAL,
+                        default=options.get(OPT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL),
+                    ): vol.In({1: "1 min", 2: "2 min", 5: "5 min", 10: "10 min", 15: "15 min"}),
+                    vol.Required(
+                        OPT_KEEP_ALIVE,
+                        default=options.get(OPT_KEEP_ALIVE, DEFAULT_KEEP_ALIVE),
+                    ): bool,
+                    vol.Required(
+                        OPT_AUTO_BACKUP,
+                        default=options.get(OPT_AUTO_BACKUP, DEFAULT_AUTO_BACKUP),
+                    ): bool,
+                    vol.Required(
+                        OPT_INQUIRY_MODE,
+                        default=options.get(OPT_INQUIRY_MODE, DEFAULT_INQUIRY_MODE),
+                    ): vol.In({"auto": "Auto (always discoverable)", "manual": "Manual (button press)"}),
                 }
             ),
         )

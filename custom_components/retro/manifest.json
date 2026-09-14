@@ -1,7 +1,7 @@
 {
   "domain": "retro",
   "name": "Retro Gaming",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "documentation": "https://github.com/cdccentral-sourcecontrol/hass-retro",
   "issue_tracker": "https://github.com/cdccentral-sourcecontrol/hass-retro/issues",
   "codeowners": ["@cdccentral-sourcecontrol"],

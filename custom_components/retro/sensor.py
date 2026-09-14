@@ -8,8 +8,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_CONSOLE_TYPE, CONF_DEVICE_ADDRESS, CONF_DEVICE_NAME, DOMAIN
-from .coordinator import RetroCoordinator
+from .const import CONF_CONSOLE_TYPE, CONF_DEVICE_ADDRESS, CONF_DEVICE_NAME, DOMAIN, DST_BUTTON_NAMES, SRC_BUTTON_NAMES
+from .coordinator import REPO_URL, RetroCoordinator
 
 
 async def async_setup_entry(
@@ -42,6 +42,7 @@ class _RetroSensorBase(CoordinatorEntity[RetroCoordinator], SensorEntity):
             "name": entry.data[CONF_DEVICE_NAME],
             "manufacturer": "BlueRetro" if "blueretro" in entry.data.get("adapter_type", "") else "Unknown",
             "model": entry.data.get(CONF_CONSOLE_TYPE, "unknown").upper(),
+            "configuration_url": REPO_URL,
         }
 
 
@@ -66,15 +67,40 @@ class RetroStatusSensor(_RetroSensorBase):
         return "disconnected"
 
     @property
-    def extra_state_attributes(self) -> dict[str, str | int | None]:
-        """Return additional state attributes."""
-        attrs: dict[str, str | int | None] = {
+    def extra_state_attributes(self) -> dict[str, str | int | list | None]:
+        """Return additional state attributes including human-readable mappings."""
+        console = self.coordinator.console_type
+        attrs: dict[str, str | int | list | None] = {
             "adapter_type": self.coordinator.adapter_type,
-            "console_type": self.coordinator.console_type,
+            "console_type": console,
             "active_profile": self.coordinator.active_profile,
         }
         if self.coordinator.data and self.coordinator.data.get("mapping"):
-            attrs["mapping_count"] = self.coordinator.data["mapping"].get("map_size", 0)
+            mapping = self.coordinator.data["mapping"]
+            attrs["mapping_count"] = mapping.get("map_size", 0)
+
+            # Build human-readable mapping list (exclude combo mappings)
+            from .adapters.blueretro import COMBO_BASE_1  # noqa: PLC0415
+
+            dst_names = DST_BUTTON_NAMES.get(console, {})
+            raw_maps = mapping.get("mappings", [])
+            readable = []
+            for m in raw_maps:
+                dst = m.get("dst_btn", 0)
+                if dst >= COMBO_BASE_1:
+                    continue  # Skip system combo mappings
+                src = m.get("src_btn", 0)
+                src_name = SRC_BUTTON_NAMES.get(src, f"Btn {src}")
+                dst_name = dst_names.get(dst, f"Btn {dst}")
+                readable.append({
+                    "src": src,
+                    "src_name": src_name,
+                    "dst": dst,
+                    "dst_name": dst_name,
+                    "deadzone": m.get("perc_deadzone", 15),
+                    "max": m.get("perc_max", 100),
+                })
+            attrs["mappings"] = readable
         return attrs
 
 
