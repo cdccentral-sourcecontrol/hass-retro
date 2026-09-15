@@ -37,7 +37,7 @@ from .const import (
 
 PROFILES_DIR = Path(__file__).parent / "profiles"
 
-REPO_URL = "https://github.com/cdccentral-sourcecontrol/hass-retro"
+REPO_URL = "https://github.com/matthew-rutledge-dev/hass-retro"
 
 
 class RetroCoordinator(DataUpdateCoordinator[dict[str, Any]]):
